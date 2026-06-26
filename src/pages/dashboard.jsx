@@ -11,10 +11,9 @@ import {
     SidebarProvider,
 } from "@/components/ui/sidebar"
 import { useGetLatestCallsQuery } from "@/services/callApi";
-import { useGetCallsQuery } from "@/services/callApi";
-import { generateDateFilters } from "@/lib/utils"
 
 import data from "@/data/data.json"
+import { CityCostChart } from "@/components/city-cost-chart-wrapper"
 
 export default function Dashboard() {
     const { data: call = {}, isLoading: isLatestLoading } = useGetLatestCallsQuery();
@@ -35,15 +34,11 @@ export default function Dashboard() {
         });
     }, [call?.callStartTime]);
 
-    const filters = generateDateFilters(dateRange);
+    // const filters = generateDateFilters(dateRange);
 
-    const { data: calls = [], isLoading: isCallsLoading } = useGetCallsQuery(filters, {
-        skip: isLatestLoading || !filters,
-    });
-
-    useEffect(() => {
-        console.log('Calls', calls);
-    }, [calls])
+    // const { data: calls = [], isLoading: isCallsLoading } = useGetCallsQuery(filters, {
+    //     skip: isLatestLoading || !filters,
+    // });
 
     return (
         <SidebarProvider
@@ -60,9 +55,12 @@ export default function Dashboard() {
                 <div className="flex flex-1 flex-col">
                     <div className="@container/main flex flex-1 flex-col gap-2">
                         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-                            <SectionCards />
+                            <SectionCards dateRange={dateRange} />
                             <div className="px-4 lg:px-6">
                                 <ChartAreaInteractive latestDate={dateRange} />
+                            </div>
+                            <div className="px-4 lg:px-6">
+                                <CityCostChart latestDate={dateRange} />
                             </div>
                             <DataTable data={data} />
                         </div>

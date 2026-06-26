@@ -17,6 +17,17 @@ export const callApi = api.injectEndpoints({
             providesTags: ["Calls"],
         }),
 
+        getCityCost: builder.query({
+            query: (query) => `/calls/city_cost/${query ? `?${query}` : ''}`,
+            providesTags: ["Calls"],
+        }),
+
+        getCallAnalytics: builder.query({
+            query: (query) => `/calls/analytics/${query ? `?${query}` : ''}`,
+            providesTags: ["Calls"],
+        }),
+
+
         getCall: builder.query({
             query: (id) => `/calls/${id}/`,
         }),
@@ -53,6 +64,8 @@ export const {
     useGetLatestCallsQuery,
     useGetCallsQuery,
     useGetCallQuery,
+    useGetCityCostQuery,
+    useGetCallAnalyticsQuery,
     useGetStartTimesQuery,
     useCreateCallMutation,
     useUpdateCallMutation,

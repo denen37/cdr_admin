@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable no-unused-vars */
 "use client"
 
@@ -25,9 +26,8 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
-import { subDays, format } from "date-fns"
-import { generateDateFilters } from "@/lib/utils"
 import { useGetStartTimesQuery } from "@/services/callApi"
+import { dateFilterQuery } from "@/lib/utils"
 
 export const description = "An interactive area chart"
 
@@ -53,34 +53,11 @@ export function ChartAreaInteractive({ latestDate }) {
 
   useEffect(() => {
     if (isMobile) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTimeRange("0d")
     }
   }, [isMobile])
 
-  const dateFilterQuery = (referenceDate) => {
-    if (!referenceDate?.from || !referenceDate?.to) return "";
-
-    let daysToSubtract = 90;
-
-    if (timeRange === "30d") daysToSubtract = 30;
-    else if (timeRange === "7d") daysToSubtract = 7;
-    else if (timeRange === "1d") daysToSubtract = 1;
-    else if (timeRange === "0d") daysToSubtract = 0;
-
-    const newDate = {
-      from: subDays(referenceDate.to, daysToSubtract),
-      to: referenceDate.to,
-    };
-
-    return generateDateFilters(newDate);
-  };
-
-  const filterQueryString = dateFilterQuery(latestDate)
-
-  // const filterQueryString = useMemo(() => {
-  //   return dateFilterQuery(latestDate);
-  // }, [latestDate, timeRange]);
+  const filterQueryString = dateFilterQuery(latestDate, timeRange)
 
   const { data: periods = [], isLoading: isPeriodLoading } = useGetStartTimesQuery(filterQueryString, {
     skip: !filterQueryString,
