@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable no-unused-vars */
+import { useEffect, useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { DataTable } from "@/components/data-table"
@@ -7,10 +10,41 @@ import {
     SidebarInset,
     SidebarProvider,
 } from "@/components/ui/sidebar"
+import { useGetLatestCallsQuery } from "@/services/callApi";
+import { useGetCallsQuery } from "@/services/callApi";
+import { generateDateFilters } from "@/lib/utils"
 
 import data from "@/data/data.json"
 
 export default function Dashboard() {
+    const { data: call = {}, isLoading: isLatestLoading } = useGetLatestCallsQuery();
+
+    const [dateRange, setDateRange] = useState({
+        from: null,
+        to: null,
+    });
+
+    useEffect(() => {
+        if (!call?.callStartTime) return;
+
+        const callDate = new Date(call.callStartTime);
+
+        setDateRange({
+            from: callDate,
+            to: callDate,
+        });
+    }, [call?.callStartTime]);
+
+    const filters = generateDateFilters(dateRange);
+
+    const { data: calls = [], isLoading: isCallsLoading } = useGetCallsQuery(filters, {
+        skip: isLatestLoading || !filters,
+    });
+
+    useEffect(() => {
+        console.log('Calls', calls);
+    }, [calls])
+
     return (
         <SidebarProvider
             style={
@@ -22,13 +56,13 @@ export default function Dashboard() {
         >
             <AppSidebar variant="inset" />
             <SidebarInset>
-                <SiteHeader />
+                <SiteHeader defaultDate={dateRange} onDateChange={setDateRange} />
                 <div className="flex flex-1 flex-col">
                     <div className="@container/main flex flex-1 flex-col gap-2">
                         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
                             <SectionCards />
                             <div className="px-4 lg:px-6">
-                                <ChartAreaInteractive />
+                                <ChartAreaInteractive latestDate={dateRange} />
                             </div>
                             <DataTable data={data} />
                         </div>

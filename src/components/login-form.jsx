@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input"
 import AlertError from "./alert-error"
 
-export function LoginForm({ className, onSubmit, error, ...props }) {
+export function LoginForm({ className, onSubmit, errors, ...props }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -32,7 +33,7 @@ export function LoginForm({ className, onSubmit, error, ...props }) {
       <Card>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
-          {error && <AlertError message={error} />}
+          {errors && errors.length > 0 && <AlertError messages={errors} />}
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>
@@ -61,7 +62,7 @@ export function LoginForm({ className, onSubmit, error, ...props }) {
                   Login with Google
                 </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="#">Sign up</a>
+                  Don&apos;t have an account? <Link to="/signup">Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
