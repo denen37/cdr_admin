@@ -40,7 +40,7 @@ import {format} from 'date-fns'
 export const columns = [
     {
         accessorKey: "header",
-        header: () => {
+        header: ({column}) => {
             return (
                 <div className="flex items-center">
                     <h1 className="ps-1">Name</h1>
@@ -58,7 +58,12 @@ export const columns = [
                             />
                         </PopoverContent>
                     </Popover>
-                    <ArrowUpDown className="ml-1 h-4 w-4" />
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
                 </div>
             )
         },
@@ -123,7 +128,7 @@ export const columns = [
     },
     {
         accessorKey: "city",
-        header: () => {
+        header: ({column}) => {
             return (
                 <div className="flex items-center">
                     <h1 className="ps-1">City</h1>
@@ -141,7 +146,12 @@ export const columns = [
                             />
                         </PopoverContent>
                     </Popover>
-                    <ArrowUpDown className="ml-1 h-4 w-4" />
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
                 </div>
             )
         },
@@ -241,7 +251,7 @@ export const columns = [
     },
     {
         accessorKey: "cost",
-        header: () => {
+        header: ({column}) => {
             return (
                 <div className="flex items-center">
                     <h1 className="ps-1 text-right">Cost</h1>
@@ -307,7 +317,12 @@ export const columns = [
                             </div>
                         </PopoverContent>
                     </Popover>
-                    <ArrowUpDown className="ml-1 h-4 w-4" />
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
                 </div>
             )
         },
@@ -317,7 +332,7 @@ export const columns = [
     },
     {
         accessorKey: "duration",
-        header: () => {
+        header: ({column}) => {
             return (
                 <div className="flex items-center">
                     <h1 className="ps-1 text-right">Duration</h1>
@@ -383,7 +398,12 @@ export const columns = [
                             </div>
                         </PopoverContent>
                     </Popover>
-                    <ArrowUpDown className="ml-1 h-4 w-4" />
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
                 </div>
             )
         },
@@ -393,7 +413,7 @@ export const columns = [
     },
     {
         accessorKey: "startTime",
-        header: () => {
+        header: ({column}) => {
             return (
                 <div className="flex items-center">
                     <h1 className="ps-1 text-right">Start Time</h1>
@@ -416,16 +436,21 @@ export const columns = [
                             </div>
                         </PopoverContent>
                     </Popover>
-                    <ArrowUpDown className="ml-1 h-4 w-4" />
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
                 </div>
             )
         },
-        cell: ({ row }) => <p className="text-left text-muted-foreground">{format(new Date(row.original.callStartTime), 'yyyy-MM-dd h:m:s')}</p>
+        cell: ({ row }) => <p className="text-left text-muted-foreground">{format(new Date(row.original.callStartTime), 'yyyy-MM-dd hh:mm:ss')}</p>
     },
     {
         accessorKey: "endTime",
         header: "End Time",
-        cell: ({ row }) => <p className="text-left text-muted-foreground">{row.original.callEndTime}</p>
+        cell: ({ row }) => <p className="text-left text-muted-foreground">{format(new Date(row.original.callEndTime), 'yyyy-MM-dd hh:mm:ss')}</p>
     },
     {
         id: "actions",

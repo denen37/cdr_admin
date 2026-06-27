@@ -51,6 +51,8 @@ import {
 import { Columns3Icon, ChevronDownIcon, PlusIcon, ChevronsLeftIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsRightIcon, TrendingUpIcon } from "lucide-react"
 import { CustomInputGroup } from "./input-group";
 
+import { useGetCallsQuery } from "@/services/callApi";
+
 
 function DraggableRow({
   row
@@ -78,26 +80,63 @@ function DraggableRow({
   );
 }
 
-export function DataTable({ calls, columns }) {
-  const [data, setData] = React.useState(() => calls?.results || [])
+export function DataTable({ columns }) {
+  const [data, setData] = React.useState([])
+  const [query, setQuery] = React.useState('')
+  const [searchValue, setSearchValue] = React.useState('')
+  const [searchKey, setSearchKey] = React.useState('')
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
     React.useState({})
   const [columnFilters, setColumnFilters] = React.useState([])
   const [sorting, setSorting] = React.useState([])
   const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
+    pageNo: 1,
     pageSize: 10,
   })
 
-  // const { data: calls = [], isLoading: isCallsLoading } = useGetCallsQuery()
+  const setQueryParams = (query, obj) => {
+    const params = new URLSearchParams(query);
+  
+    Object.entries(obj).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "") {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+    });
+  
+    return params.toString();
+  };
 
-  // const data = calls.result ?? []
 
-    // React.useEffect(() => {
-    //     console.log(data)
-    // }, [data])
+    React.useEffect(() => {
+      if (!searchValue && searchKey !== 'Enter') return;
+    
+      if (searchKey === "Enter") {
+        setPagination((prev) => ({ ...prev, pageNo: 1 }));
+        setQuery((prev) =>
+          setQueryParams(prev, {
+            search: searchValue.trim(),
+            page: 1,
+          })
+        );
+      }
+    }, [searchValue, searchKey]);
 
+
+    React.useEffect(() => {
+            let queryText = setQueryParams(query, {page_size: pagination.pageSize, page: pagination.pageNo})
+            setQuery(queryText)
+    }, [pagination])
+
+    const { data: calls = {}, isLoading: isCallsLoading } = useGetCallsQuery(query);
+
+    React.useEffect(() => {
+      if(calls?.results){
+        setData(calls?.results)
+      }
+  }, [calls])
 
   const dataIds = React.useMemo(() => data?.map(({ id }) => id) || [], [data])
 
@@ -109,7 +148,7 @@ export function DataTable({ calls, columns }) {
       columnVisibility,
       rowSelection,
       columnFilters,
-      pagination,
+      // pagination,
     },
     getRowId: (row) => row.id.toString(),
     enableRowSelection: true,
@@ -117,10 +156,10 @@ export function DataTable({ calls, columns }) {
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: setPagination,
+    // onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
@@ -129,7 +168,14 @@ export function DataTable({ calls, columns }) {
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
-        <CustomInputGroup id='search' placeholder={'Search here...'} maxWidth={100} />
+        <CustomInputGroup 
+          id='search' 
+          placeholder={'Type text and press Enter'} 
+          value={searchValue}
+          setValue={setSearchValue}
+          setKey={setSearchKey}
+          maxWidth={50} 
+          />
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -206,8 +252,7 @@ export function DataTable({ calls, columns }) {
         </div>
         <div className="flex items-center justify-between px-4">
           <div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {calls?.count || 0} row(s) found.
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
@@ -215,12 +260,12 @@ export function DataTable({ calls, columns }) {
                 Rows per page
               </Label>
               <Select
-                value={`${table.getState().pagination.pageSize}`}
+                value={`${pagination.pageSize}`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value))
+                  setPagination({...pagination, pageSize: Number(value)})
                 }}>
                 <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                  <SelectValue placeholder={table.getState().pagination.pageSize} />
+                  <SelectValue placeholder={pagination.pageSize} />
                 </SelectTrigger>
                 <SelectContent side="top">
                   <SelectGroup>
@@ -234,15 +279,15 @@ export function DataTable({ calls, columns }) {
               </Select>
             </div>
             <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
+              Page {pagination.pageNo} of{" "}
+              {Math.ceil(calls.count / (pagination.pageSize))}
             </div>
             <div className="ml-auto flex items-center gap-2 lg:ml-0">
               <Button
                 variant="outline"
                 className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}>
+                onClick={() => setPagination({...pagination, pageNo: 1})}
+                disabled={!calls.previous}>
                 <span className="sr-only">Go to first page</span>
                 <ChevronsLeftIcon />
               </Button>
@@ -250,8 +295,8 @@ export function DataTable({ calls, columns }) {
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}>
+                onClick={() => setPagination({...pagination, pageNo: pagination.pageNo - 1})}
+                disabled={!calls.previous}>
                 <span className="sr-only">Go to previous page</span>
                 <ChevronLeftIcon />
               </Button>
@@ -259,8 +304,8 @@ export function DataTable({ calls, columns }) {
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}>
+                onClick={() => setPagination({...pagination, pageNo: pagination.pageNo + 1})}
+                disabled={!calls.next}>
                 <span className="sr-only">Go to next page</span>
                 <ChevronRightIcon />
               </Button>
@@ -268,8 +313,8 @@ export function DataTable({ calls, columns }) {
                 variant="outline"
                 className="hidden size-8 lg:flex"
                 size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}>
+                onClick={() => setPagination({...pagination, pageNo: Math.ceil(calls.count / (pagination.pageSize))})}
+                disabled={!calls.next}>
                 <span className="sr-only">Go to last page</span>
                 <ChevronsRightIcon />
               </Button>

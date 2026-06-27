@@ -13,51 +13,57 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, ListIcon, ChartBarIcon, FolderIcon, UsersIcon, CameraIcon, FileTextIcon, Settings2Icon, CircleHelpIcon, SearchIcon, DatabaseIcon, FileChartColumnIcon, FileIcon, CommandIcon } from "lucide-react"
+import { LayoutDashboardIcon, UserRoundKey, ListIcon, ChartBarIcon, FolderIcon, Group, UsersIcon, CameraIcon, FileTextIcon, Settings2Icon, CircleHelpIcon, SearchIcon, DatabaseIcon, FileChartColumnIcon, FileIcon, CommandIcon } from "lucide-react"
+import {Analytics} from '@/pages/analytics'
+import {Users} from '@/pages/users'
+import {Permissions} from '@/pages/permissions'
+import {Groups} from '@/pages/groups'
 
 const data = {
   user: {
-    name: "shadcn",
+    name: "denen",
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
     {
+      id: 1,
       title: "Dashboard",
-      url: "#",
+      page: (<Analytics/>),
       icon: (
         <LayoutDashboardIcon />
       ),
+      active: true
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: (
-        <ListIcon />
-      ),
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: (
-        <ChartBarIcon />
-      ),
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: (
-        <FolderIcon />
-      ),
-    },
-    {
-      title: "Team",
-      url: "#",
+      id: 2,
+      title: "Users",
+      page: (<Users/>),
       icon: (
         <UsersIcon />
       ),
+      active: false
+    },
+    {
+      id: 3,
+      title: "Groups",
+      page: (<Groups/>),
+      icon: (
+        <Group />
+      ),
+      active: false
+    },
+    {
+      id: 4,
+      title: "Permissions",
+      page: (<Permissions/>),
+      icon: (
+        <UserRoundKey />
+      ),
+      active: false
     },
   ],
+
   navClouds: [
     {
       title: "Capture",
@@ -135,34 +141,20 @@ const data = {
       ),
     },
   ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: (
-        <DatabaseIcon />
-      ),
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: (
-        <FileChartColumnIcon />
-      ),
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: (
-        <FileIcon />
-      ),
-    },
-  ],
+
 }
 
 export function AppSidebar({
   ...props
 }) {
+  const [navMain, setNavMain] = React.useState(data.navMain)
+
+  const handleNavSelected = (id) => {
+    setNavMain((prev) => prev.map((item) => {
+      return item.id === id ? {...item, active: true} : {...item, active: false}
+    }))
+  }
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -178,9 +170,9 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navMain} onSelected={handleNavSelected}/>
+        {/* <NavDocuments items={data.documents} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
