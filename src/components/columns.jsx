@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/popover"
 import { DatePickerInput } from "./calendar-single"
 import { CustomInputGroup } from "./input-group"
+import {format} from 'date-fns'
 
 
 export const columns = [
@@ -419,7 +420,7 @@ export const columns = [
                 </div>
             )
         },
-        cell: ({ row }) => <p className="text-left text-muted-foreground">{row.original.callStartTime}</p>
+        cell: ({ row }) => <p className="text-left text-muted-foreground">{format(new Date(row.original.callStartTime), 'yyyy-MM-dd h:m:s')}</p>
     },
     {
         accessorKey: "endTime",

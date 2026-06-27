@@ -78,8 +78,8 @@ function DraggableRow({
   );
 }
 
-export function DataTable({ data: initialData, columns }) {
-  const [data, setData] = React.useState(() => initialData)
+export function DataTable({ calls, columns }) {
+  const [data, setData] = React.useState(() => calls?.results || [])
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
     React.useState({})
@@ -89,6 +89,14 @@ export function DataTable({ data: initialData, columns }) {
     pageIndex: 0,
     pageSize: 10,
   })
+
+  // const { data: calls = [], isLoading: isCallsLoading } = useGetCallsQuery()
+
+  // const data = calls.result ?? []
+
+    // React.useEffect(() => {
+    //     console.log(data)
+    // }, [data])
 
 
   const dataIds = React.useMemo(() => data?.map(({ id }) => id) || [], [data])

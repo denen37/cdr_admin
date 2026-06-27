@@ -12,6 +12,10 @@ export const callApi = api.injectEndpoints({
             providesTags: ["Calls"],
         }),
 
+        getCall: builder.query({
+            query: (id) => `/calls/${id}/`,
+        }),
+
         getStartTimes: builder.query({
             query: (query) => `/calls/get_start_times/${query ? `?${query}` : ''}`,
             providesTags: ["Calls"],
@@ -25,11 +29,6 @@ export const callApi = api.injectEndpoints({
         getCallAnalytics: builder.query({
             query: (query) => `/calls/analytics/${query ? `?${query}` : ''}`,
             providesTags: ["Calls"],
-        }),
-
-
-        getCall: builder.query({
-            query: (id) => `/calls/${id}/`,
         }),
 
         createCall: builder.mutation({

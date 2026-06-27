@@ -11,7 +11,7 @@ import {
     SidebarProvider,
 } from "@/components/ui/sidebar"
 import { useGetLatestCallsQuery } from "@/services/callApi";
-import { useGetCallQuery } from "@/services/callApi";
+import { useGetCallsQuery } from "@/services/callApi";
 
 import data from "@/data/data.json"
 import { CityCostChart } from "@/components/city-cost-chart-wrapper"
@@ -38,11 +38,7 @@ export default function Dashboard() {
 
     // const filters = generateDateFilters(dateRange);
 
-    // const { data: calls = [], isLoading: isCallsLoading } = useGetCallsQuery(filters, {
-    //     skip: isLatestLoading || !filters,
-    // });
-
-    const { data = [], isLoading: isCallsLoading } = useGetCallQuery()
+    const { data: calls = {}, isLoading: isCallsLoading } = useGetCallsQuery();
 
 
     return (
@@ -67,7 +63,7 @@ export default function Dashboard() {
                             <div className="px-4 lg:px-6">
                                 <CityCostChart latestDate={dateRange} />
                             </div>
-                            <DataTable data={data} columns={columns} />
+                            <DataTable data={calls} columns={columns} />
                         </div>
                     </div>
                 </div>
