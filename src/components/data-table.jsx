@@ -167,10 +167,10 @@ export function DataTable({ columns }) {
 
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
-      <div className="flex items-center justify-between px-4 lg:px-6">
+      <div className="flex items-center justify-between gap-6 px-4 lg:px-6">
         <CustomInputGroup 
           id='search' 
-          placeholder={'Type text and press Enter'} 
+          placeholder={'Type text and press "Enter" to search...'} 
           value={searchValue}
           setValue={setSearchValue}
           setKey={setSearchKey}
@@ -206,10 +206,10 @@ export function DataTable({ columns }) {
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm">
+          {/* <Button variant="outline" size="sm">
             <PlusIcon />
             <span className="hidden lg:inline">Add Section</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
       <TabsContent
