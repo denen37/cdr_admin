@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 // import { toast } from "sonner"
 import { CircleCheckIcon, MoveRight, MoveLeft, ChevronDown, EllipsisVerticalIcon, CircleX, ArrowUpDown } from "lucide-react"
-import { formatCost } from "@/lib/utils"
+import { formatCost, formatDuration } from "@/lib/utils"
 
 
 import {
@@ -35,6 +35,8 @@ import {
 import { DatePickerInput } from "./calendar-single"
 import { CustomInputGroup } from "./input-group"
 import {format} from 'date-fns'
+import {TableCellViewer} from '@/components/table-cell-viewer'
+import {DeleteDialog} from '@/components/delete-dialog'
 
 
 export const columns = [
@@ -408,7 +410,7 @@ export const columns = [
             )
         },
         cell: ({ row }) => (
-            <p className="w-full text-right pe-8">{row.original.callDuration}</p>
+            <p className="w-full text-right pe-8">{formatDuration(row.original.callDuration)}</p>
         ),
     },
     {
@@ -454,7 +456,7 @@ export const columns = [
     },
     {
         id: "actions",
-        cell: () => (
+        cell: ({row}) => (
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
@@ -466,10 +468,20 @@ export const columns = [
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-32">
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                    <TableCellViewer item={row.original}>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            Edit
+                        </DropdownMenuItem>
+                    </TableCellViewer>
 
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+                    <DeleteDialog item={row.original}>
+                        <DropdownMenuItem 
+                            variant="destructive"
+                            onSelect={(e) => e.preventDefault()}
+                            >Delete
+                        </DropdownMenuItem>
+                    </DeleteDialog>
                 </DropdownMenuContent>
             </DropdownMenu>
         ),

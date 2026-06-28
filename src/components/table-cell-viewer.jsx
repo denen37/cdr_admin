@@ -26,182 +26,253 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-
-const chartData = [
-    { month: "January", desktop: 186, mobile: 80 },
-    { month: "February", desktop: 305, mobile: 200 },
-    { month: "March", desktop: 237, mobile: 120 },
-    { month: "April", desktop: 73, mobile: 190 },
-    { month: "May", desktop: 209, mobile: 130 },
-    { month: "June", desktop: 214, mobile: 140 },
-]
-
-const chartConfig = {
-    desktop: {
-        label: "Desktop",
-        color: "var(--primary)",
-    },
-
-    mobile: {
-        label: "Mobile",
-        color: "var(--primary)",
-    }
-}
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { DatePickerTime } from "@/components/datetime-picker"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import {format} from 'date-fns'
+import {useEffect, useState, useMemo} from "react"
+import { useUpdateCallMutation } from "@/services/callApi"
 
 
-export function TableCellViewer({
-    item
-}) {
+export function TableCellViewer({ item, children}) {
     const isMobile = useIsMobile()
+    const id = item.id
+    const [callerName, setCallerName] = useState(item.callerName)
+    const [callerNo, setCallerNo] = useState(item.callerNumber)
+    const [receiverNo, setReceiverNo] = useState(item.receiverNumber)
+    const [callStatus, setCallStatus] = useState(item.callStatus)
+    const [callCost, setCallCost] = useState(item.callCost)
+    const [callDuration, setCallDuration] = useState(item.callDuration)
+    const [callDirection, setCallDirection] = useState(item.callDirection)
+    const [city, setCity] = useState(item.city)
+    const [startTime, setStartTime] = useState(item.callStartTime)
+    const [endTime, setEndTime] = useState(item.callEndTime)
+    const [edited, setEdited] = useState(false)
+    const [updated] = useUpdateCallMutation();
+
+    const initialValues = useMemo(() => ({
+        callerName: item.callerName,
+        callerNo: item.callerNo,
+        receiverNo: item.receiverNo,
+        callStatus: item.callStatus,
+        callDirection: item.callDirection,
+        city: item.city,
+        callCost: item.callCost,
+        callDuration: item.callDuration,
+        startTime: item.startTime,
+        endTime: item.endTime,
+      }), [item]);
+
+
+    const handleSubmit = async () => {
+        const formValues = {
+            callerName: callerName,
+            callerNumber: callerNo,
+            receiverNumber: receiverNo,
+            callStatus,
+            callDirection,
+            city,
+            callCost,
+            callDuration,
+            callStartTime: startTime,
+            callEndTime: endTime,
+        }
+
+        try {
+            const response = await updated({id: id, ...formValues,}).unwrap();
+        
+            window.alert("Update successful")
+
+            // console.log(response)
+        } catch (error) {
+            console.log(error)
+            if(error.status == 403){
+                window.alert("Forbidden: You do not have permission to perform this action")
+            }else if(error.status == 403){
+                window.alert("Unauthorized !")
+            }else{
+                window.alert("Update Failed! Something went wrong")
+            }
+        }
+    }
+
 
     return (
         <Drawer direction={isMobile ? "bottom" : "right"}>
             <DrawerTrigger asChild>
-                <Button variant="link" className="w-fit px-0 text-left text-foreground">
-                    {item.header}
-                </Button>
+                {children}
             </DrawerTrigger>
             <DrawerContent>
                 <DrawerHeader className="gap-1">
-                    <DrawerTitle>{item.header}</DrawerTitle>
+                    <DrawerTitle>Edit this record</DrawerTitle>
                     <DrawerDescription>
-                        Showing total visitors for the last 6 months
+                        
                     </DrawerDescription>
                 </DrawerHeader>
-                <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-                    {!isMobile && (
-                        <>
-                            <ChartContainer config={chartConfig}>
-                                <AreaChart
-                                    accessibilityLayer
-                                    data={chartData}
-                                    margin={{
-                                        left: 0,
-                                        right: 10,
-                                    }}>
-                                    <CartesianGrid vertical={false} />
-                                    <XAxis
-                                        dataKey="month"
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickMargin={8}
-                                        tickFormatter={(value) => value.slice(0, 3)}
-                                        hide />
-                                    <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                                    <Area
-                                        dataKey="mobile"
-                                        type="natural"
-                                        fill="var(--color-mobile)"
-                                        fillOpacity={0.6}
-                                        stroke="var(--color-mobile)"
-                                        stackId="a" />
-                                    <Area
-                                        dataKey="desktop"
-                                        type="natural"
-                                        fill="var(--color-desktop)"
-                                        fillOpacity={0.4}
-                                        stroke="var(--color-desktop)"
-                                        stackId="a" />
-                                </AreaChart>
-                            </ChartContainer>
-                            <Separator />
-                            <div className="grid gap-2">
-                                <div className="flex gap-2 leading-none font-medium">
-                                    Trending up by 5.2% this month{" "}
-                                    <TrendingUpIcon className="size-4" />
-                                </div>
-                                <div className="text-muted-foreground">
-                                    Showing total visitors for the last 6 months. This is just
-                                    some random text to test the layout. It spans multiple lines
-                                    and should wrap around.
-                                </div>
-                            </div>
-                            <Separator />
-                        </>
-                    )}
-                    <form className="flex flex-col gap-4">
+                <div className="no-scrollbar overflow-y-auto px-4">
+                    <form className="flex flex-col gap-4 px-4">
                         <div className="flex flex-col gap-3">
-                            <Label htmlFor="header">Header</Label>
-                            <Input id="header" defaultValue={item.header} />
+                            <Label htmlFor="callerName">Caller Name</Label>
+                            <Input id="callerName" 
+                                defaultValue={callerName} 
+                                className='text-muted-foreground'
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    if(value !== initialValues.callerName){
+                                        setCallerName(e.target.value)
+                                        setEdited(true)
+                                    }
+                                }}
+                                />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-3">
-                                <Label htmlFor="type">Type</Label>
-                                <Select defaultValue={item.type}>
-                                    <SelectTrigger id="type" className="w-full">
-                                        <SelectValue placeholder="Select a type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem value="Table of Contents">
-                                                Table of Contents
-                                            </SelectItem>
-                                            <SelectItem value="Executive Summary">
-                                                Executive Summary
-                                            </SelectItem>
-                                            <SelectItem value="Technical Approach">
-                                                Technical Approach
-                                            </SelectItem>
-                                            <SelectItem value="Design">Design</SelectItem>
-                                            <SelectItem value="Capabilities">Capabilities</SelectItem>
-                                            <SelectItem value="Focus Documents">
-                                                Focus Documents
-                                            </SelectItem>
-                                            <SelectItem value="Narrative">Narrative</SelectItem>
-                                            <SelectItem value="Cover Page">Cover Page</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
+                                <Label htmlFor="callerNo">Caller Number</Label>
+                                <Input id="callerNo" 
+                                    defaultValue={callerNo} 
+                                    className='text-muted-foreground'
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if(value !== initialValues.callerNo){
+                                            setCallerNo(value)
+                                            setEdited(true)
+                                        }
+                                    }}
+                                    />
                             </div>
                             <div className="flex flex-col gap-3">
+                                <Label htmlFor="receiverNo">Receiver Number</Label>
+                                <Input id="receiverNo" 
+                                    defaultValue={receiverNo} 
+                                    className='text-muted-foreground'
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if(value !== initialValues.receiverNo){
+                                            setReceiverNo(value)
+                                            setEdited(true)
+                                        }
+                                    }}
+                                    />
+                            </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1">
                                 <Label htmlFor="status">Status</Label>
-                                <Select defaultValue={item.status}>
-                                    <SelectTrigger id="status" className="w-full">
-                                        <SelectValue placeholder="Select a status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem value="Done">Done</SelectItem>
-                                            <SelectItem value="In Progress">In Progress</SelectItem>
-                                            <SelectItem value="Not Started">Not Started</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
+
+                                <Field orientation="horizontal">
+                                    <Checkbox id="status" 
+                                        name="status" 
+                                        checked={callStatus}
+                                        onCheckedChange={(e) => {
+                                            if(e !== initialValues.callStatus){
+                                                setCallStatus(e)
+                                                setEdited(true)
+                                            }
+                                        }}
+                                        />
+                                    <FieldLabel htmlFor="status" className="text-muted-foreground">
+                                        Success
+                                    </FieldLabel>
+                                </Field>
                             </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="flex flex-col gap-3">
-                                <Label htmlFor="target">Target</Label>
-                                <Input id="target" defaultValue={item.target} />
-                            </div>
-                            <div className="flex flex-col gap-3">
-                                <Label htmlFor="limit">Limit</Label>
-                                <Input id="limit" defaultValue={item.limit} />
+                            <div className="flex flex-col gap-1">
+                                <Label htmlFor="dir">Direction</Label>
+
+                                <Field orientation="horizontal">
+                                    <Checkbox id="direction" 
+                                        name="direction" 
+                                        checked={callDirection}
+                                        onCheckedChange={(e) => {
+                                            if(e !== initialValues.callDirection){
+                                                setCallDirection(e)
+                                                setEdited(true)
+                                            }
+                                        }}
+                                        />
+                                    <FieldLabel htmlFor="direction" className="text-muted-foreground">
+                                        Forwarded
+                                    </FieldLabel>
+                                </Field>
                             </div>
                         </div>
                         <div className="flex flex-col gap-3">
-                            <Label htmlFor="reviewer">Reviewer</Label>
-                            <Select defaultValue={item.reviewer}>
-                                <SelectTrigger id="reviewer" className="w-full">
-                                    <SelectValue placeholder="Select a reviewer" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-                                        <SelectItem value="Jamik Tashpulatov">
-                                            Jamik Tashpulatov
-                                        </SelectItem>
-                                        <SelectItem value="Emily Whalen">Emily Whalen</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                            <Label htmlFor="city">City</Label>
+                            <Input id="city" 
+                                defaultValue={city} 
+                                className="text-muted-foreground"
+                                onChange={(e)=> {
+                                    const value = e.target.value;
+                                    if(value !== initialValues.city){
+                                        setCallerNo(value)
+                                        setEdited(true)
+                                    }
+                                }}
+                                />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-3">
+                                <Label htmlFor="callCost">Cost</Label>
+                                <Input id="callCost" 
+                                    defaultValue={callCost} 
+                                    className="text-muted-foreground"
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if(value !== initialValues.callCost){
+                                            setCallCost(value)
+                                            setEdited(true)
+                                        }
+                                    }}
+                                    />
+                            </div>
+                            <div className="flex flex-col gap-3">
+                                <Label htmlFor="callDuration">Duration</Label>
+                                <Input id="callDuration" 
+                                    defaultValue={callDuration} 
+                                    className="text-muted-foreground"
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if(value !== initialValues.callDuration){
+                                            setCallDuration(value)
+                                            setEdited(true)
+                                        }
+                                    }}
+                                    />
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <Label htmlFor="startTime">Start Time</Label>
+                            <DatePickerTime 
+                                defaultDate={new Date(startTime)}
+                                defaultTime={format(new Date(startTime), 'hh:mm:ss')}
+                                onDateChange={(e) => {
+                                    if(e !== initialValues.startTime){
+                                        setStartTime(e)
+                                        setEdited(true)
+                                    }
+                                }}
+                                />
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <Label htmlFor="endTime">End Time</Label>
+                            <DatePickerTime
+                                defaultDate={new Date(endTime)}
+                                defaultTime={format(new Date(endTime), 'hh:mm:ss')}
+                                onDateChange={(e) => {
+                                    if(e !== initialValues.endTime){
+                                        setEndTime(e)
+                                        setEdited(true)
+                                    }
+                                }}
+                            />
                         </div>
                     </form>
                 </div>
                 <DrawerFooter>
-                    <Button>Submit</Button>
+                    <Button onClick={handleSubmit} disabled={!edited}>Submit</Button>
                     <DrawerClose asChild>
-                        <Button variant="outline">Done</Button>
+                        <Button variant="outline">Cancel</Button>
                     </DrawerClose>
                 </DrawerFooter>
             </DrawerContent>

@@ -13,146 +13,22 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, UserRoundKey, ListIcon, ChartBarIcon, FolderIcon, Group, UsersIcon, CameraIcon, FileTextIcon, Settings2Icon, CircleHelpIcon, SearchIcon, DatabaseIcon, FileChartColumnIcon, FileIcon, CommandIcon } from "lucide-react"
-import {Analytics} from '@/pages/analytics'
-import {Users} from '@/pages/users'
-import {Permissions} from '@/pages/permissions'
-import {Groups} from '@/pages/groups'
+import {CommandIcon} from 'lucide-react'
 
-const data = {
-  user: {
-    name: "denen",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      id: 1,
-      title: "Dashboard",
-      page: (<Analytics/>),
-      icon: (
-        <LayoutDashboardIcon />
-      ),
-      active: true
-    },
-    {
-      id: 2,
-      title: "Users",
-      page: (<Users/>),
-      icon: (
-        <UsersIcon />
-      ),
-      active: false
-    },
-    {
-      id: 3,
-      title: "Groups",
-      page: (<Groups/>),
-      icon: (
-        <Group />
-      ),
-      active: false
-    },
-    {
-      id: 4,
-      title: "Permissions",
-      page: (<Permissions/>),
-      icon: (
-        <UserRoundKey />
-      ),
-      active: false
-    },
-  ],
+import {navData} from '@/components/nav-data'
 
-  navClouds: [
-    {
-      title: "Capture",
-      icon: (
-        <CameraIcon />
-      ),
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: (
-        <FileTextIcon />
-      ),
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: (
-        <FileTextIcon />
-      ),
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: (
-        <Settings2Icon />
-      ),
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: (
-        <CircleHelpIcon />
-      ),
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: (
-        <SearchIcon />
-      ),
-    },
-  ],
-
-}
 
 export function AppSidebar({
   ...props
 }) {
-  const [navMain, setNavMain] = React.useState(data.navMain)
+  const [navMain, setNavMain] = React.useState(navData.navMain)
 
   const handleNavSelected = (id) => {
     setNavMain((prev) => prev.map((item) => {
       return item.id === id ? {...item, active: true} : {...item, active: false}
     }))
+
+    props.setNavId(id)
   }
 
   return (
@@ -175,7 +51,7 @@ export function AppSidebar({
         <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={navData.user} />
       </SidebarFooter>
     </Sidebar>
   );
