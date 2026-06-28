@@ -1,10 +1,12 @@
 import { useState } from "react"
 import { LoginForm } from "@/components/login-form"
 import { useLoginMutation } from "@/services/authApi"
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
     const [login] = useLoginMutation();
     const [errors, setErrors] = useState(null);
+    const navigate = useNavigate();
 
     const handleLogin = async (credentials) => {
         try {
@@ -14,7 +16,7 @@ export default function Login() {
             window.localStorage.setItem('accessToken', response.access);
             window.localStorage.setItem('refreshToken', response.refresh);
 
-            window.location.href = "/dashboard";
+            navigate("/dashboard");
         } catch (error) {
             let messages = [];
 
